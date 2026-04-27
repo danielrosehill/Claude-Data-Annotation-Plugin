@@ -32,7 +32,30 @@ This skill complements `scaffold-annotation-env` (which sets up Gemini batch inf
 - Read the output file if it exists; collect already-annotated `id`s so the run is resumable.
 - Show the user: N total, M already done, K remaining. Confirm before starting.
 
-### 2. Calibration pass
+### 2. Propose and commit a job-specific annotation skill
+
+Before any records get annotated, draft an annotation workflow tailored to *this* dataset and write it as a SKILL.md inside the user's annotation repo. This makes the procedure inspectable, version-controlled, and reproducible — and means a future session (or a different annotator) can replay the exact process.
+
+**Where it lives:** `<repo>/.claude/skills/annotate-<dataset-slug>/SKILL.md` if the user is in a Claude-aware repo, or `<repo>/skills/annotate-<dataset-slug>/SKILL.md` if they prefer a plain `skills/` directory. Ask which they want; default to `.claude/skills/`.
+
+**What goes in it:** the skill is the per-job operating manual, not a copy of this generic plugin skill. It must include:
+
+- **Frontmatter** — `name: annotate-<dataset-slug>`, a one-line description that names the dataset and task.
+- **Dataset summary** — what the records look like (1–2 sample records, redacted if PII), where they came from, total count.
+- **Task statement** — what we are deciding for each record, in one paragraph.
+- **Schema reference** — relative path to `schema.json` plus the inline label set / field shape so a reader doesn't need to context-switch.
+- **Decision procedure** — the ordered steps Claude follows for each record. Concrete to this dataset, not generic. Example for a categorization task: "1. Read the title and first 200 chars of body. 2. If title contains a clear category cue, use it. 3. Otherwise scan body for keyword groups (list inline). 4. If still ambiguous, abstain."
+- **Edge cases** — the actual edge cases observed in this dataset's samples, each with the prescribed handling.
+- **Abstain rules** — concrete triggers ("record has no body text", "language is not English", "schema has no class that fits").
+- **Output contract** — the exact JSONL line shape, including dataset-specific fields beyond the generic ones.
+- **Resumability and idempotency** — where the output JSONL lives and the rule that already-annotated ids are skipped.
+- **Review hooks** — how the user spot-checks (e.g. "every 20th record echoed back inline").
+
+Show the proposed skill to the user before writing. Treat it as the contract for the run — if the user wants the procedure to change, edit the skill, don't just deviate silently. After the user approves, write it to disk and `git add` it (don't commit unless they ask — many users like to commit the skill alongside the first batch of annotations).
+
+The rest of this workflow (calibration, bulk pass, output format, validation) executes *against* that committed skill. If the skill says "abstain when language is not English," that rule is binding for the run.
+
+### 3. Calibration pass
 
 For the first 5–10 records, annotate slowly and visibly:
 
@@ -43,7 +66,7 @@ For the first 5–10 records, annotate slowly and visibly:
 
 Calibration surfaces schema gaps fast — it's far cheaper to fix the schema after 5 mislabels than after 200. If the user corrects an annotation, also ask whether the schema or guidelines should be updated; if yes, update them and restart calibration on the corrected set.
 
-### 3. Bulk pass
+### 4. Bulk pass
 
 After calibration is approved, switch to bulk mode:
 
@@ -52,7 +75,7 @@ After calibration is approved, switch to bulk mode:
 - Write each chunk's annotations to the output file as you go (append-only, never rewrite earlier lines).
 - Pause between chunks so the user can interrupt, spot-check, or stop.
 
-### 4. Output format
+### 5. Output format
 
 Each line of the output JSONL:
 
@@ -62,7 +85,7 @@ Each line of the output JSONL:
 
 If `abstained: true`, the `annotations` field may be partial or null and the record is queued for human review.
 
-### 5. Validation and handoff
+### 6. Validation and handoff
 
 When the run finishes (or the user stops):
 
