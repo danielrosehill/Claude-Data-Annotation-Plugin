@@ -26,6 +26,8 @@ The template is in `template/` next to this file (`app.py`, `README.md`, `requir
 | Highlight colours as `rgba(...)` backgrounds with `color: inherit`; panes use Gradio CSS variables | Works in both light and dark theme without a second palette. |
 | Tabs: Review (queues), Browse (any subset, slider, prev/next), Stats | "Look at the data" and "review the data" are both common asks; one Space covers both. |
 | Queues = named predicates; flagged items first | Review the gold or test pool first, then whatever the validator flagged. |
+| Edit box **always visible**, directly under the pane it edits; Save fix sits in the main button row | The first version hid it in a collapsed accordion, and the reviewer reported they couldn't edit at all. |
+| Accept with an edited box saves it as a `fix` | Reviewers edit and then press Accept out of habit; the edit must not be lost. |
 | Skip lives in session state only | Skipping must never write a decision. |
 
 ## Steps

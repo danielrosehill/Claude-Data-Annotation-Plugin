@@ -170,8 +170,11 @@ def on_decide(verdict, item_id, fixed, note, name, skipped, profile: gr.OAuthPro
     r = CACHE["by_id"][item_id]
     rec = {"id": item_id, "verdict": verdict, "reviewer": profile.username if profile else None,
            "ts": datetime.now(timezone.utc).isoformat(timespec="seconds")}
+    edited = fixed.strip() != str(r.get(CONFIG["edit_field"], "")).strip()
+    if verdict == "accept" and edited:
+        verdict = rec["verdict"] = "fix"  # an edited box is a fix, whichever button saved it
     if verdict == "fix":
-        if fixed.strip() == str(r.get(CONFIG["edit_field"], "")).strip():
+        if not edited:
             raise gr.Error("Edit the text first (or press Accept).")
         rec[CONFIG["edit_field"]] = fixed.replace("\r\n", "\n")
     if note.strip():
@@ -212,21 +215,26 @@ with gr.Blocks(title=CONFIG["title"], css=CSS, js=JS, theme=gr.themes.Soft()) as
     with gr.Tab("Review"):
         qname = gr.Radio(list(CONFIG["queues"]), value=next(iter(CONFIG["queues"])), label="Queue")
         prog, meta = gr.Markdown(), gr.Markdown()
-        panes = []
+        panes, fixbox = [], None
         with gr.Row():
             for p in CONFIG["panes"]:
                 with gr.Column():
                     gr.Markdown(f"**{p['label']}**")
                     panes.append(gr.HTML())
+                    # The edit box sits, always visible, under the pane it edits. In a collapsed
+                    # accordion below the buttons, the first reviewer could not find it.
+                    if p["field"] == CONFIG["edit_field"]:
+                        fixbox = gr.Textbox(lines=8, max_lines=40, elem_id="fixbox",
+                                            label="Edit here (e), then Save fix — Accept also saves an edit")
+        if fixbox is None:
+            fixbox = gr.Textbox(lines=8, max_lines=40, elem_id="fixbox", label="Edit (e), then Save fix")
         details = gr.HTML()
+        note = gr.Textbox(label="Note (optional)", lines=1)
         with gr.Row():
             b_acc = gr.Button("✓ Accept (a)", elem_id="accept")
+            b_fix = gr.Button("✎ Save fix", elem_id="fix")
             b_rej = gr.Button("✗ Reject (r)", elem_id="reject")
             b_skip = gr.Button("→ Skip (n)", elem_id="skip")
-        with gr.Accordion("Fix (e)", open=False):
-            fixbox = gr.Textbox(lines=10, max_lines=40, label="Corrected text", elem_id="fixbox")
-            note = gr.Textbox(label="Note (optional)")
-            b_fix = gr.Button("✎ Save fix", elem_id="fix")
     with gr.Tab("Browse"):
         with gr.Row():
             bq = gr.Dropdown(["all", *CONFIG["queues"]], value="all", label="Subset")
