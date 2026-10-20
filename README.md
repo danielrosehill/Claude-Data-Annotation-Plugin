@@ -10,6 +10,7 @@ The plugin is built around a small set of orchestrator skills delegating to spec
 - **`annotate-with-claude`** — Claude annotates a small dataset interactively in-session against a locked schema. For runs where Label Studio or batch inference would be overkill (typically tens to low hundreds of records).
 - **`scaffold-annotation-env`** — generates a workspace for large-scale annotation via the Gemini batch inference API, with Python boilerplate (run, poll, validate).
 - **`hf-setup`** — creates a Hugging Face dataset repo (asks public/private), copies the prepared data over, generates the dataset card, pushes via `huggingface-cli`.
+- **`hf-annotation-space`** — stands up a private Hugging Face Space for humans to review, annotate or browse a JSONL dataset: side-by-side panes with highlighted spans, colour-coded Accept / Reject / Fix / Skip buttons, keyboard shortcuts, Browse and Stats tabs. Decisions are saved to the dataset as `reviews/<id>.json` with the reviewer's own HF sign-in (no secrets in the Space). Ships a config-driven Gradio template in `skills/hf-annotation-space/template/`.
 - **`ingest-source`** — stages raw data from GitHub, a local path, or a remote URL into a known working directory.
 - **`init-dataset-repo`** — initializes a local git repo with the conventional HF dataset layout, LFS rules, license, and card stub.
 
@@ -33,7 +34,7 @@ shape-dataset  ──→  data-profiler, pii-scanner, column-curator, format-nor
    ↓
 annotate-with-claude   (small)        OR        scaffold-annotation-env   (large)
    ↓                                                ↓
-review-annotations                               review-annotations
+review-annotations / hf-annotation-space         review-annotations / hf-annotation-space
    ↓                                                ↓
 hf-setup                                         hf-setup
 ```

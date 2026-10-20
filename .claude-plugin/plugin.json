@@ -1,6 +1,6 @@
 {
   "name": "data-annotation",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "End-to-end data annotation toolkit. Prep raw data, design annotation schemas, annotate interactively with Claude (small scale) or scaffold Gemini batch inference (large scale), and publish to Hugging Face.",
   "author": {
     "name": "Daniel Rosehill",
@@ -8,5 +8,15 @@
   },
   "repository": "https://github.com/danielrosehill/Claude-Data-Annotation-Plugin",
   "license": "MIT",
-  "keywords": ["datasets", "annotation", "huggingface", "data-prep", "gemini", "pii"]
+  "keywords": [
+    "annotation",
+    "data-prep",
+    "datasets",
+    "gemini",
+    "gradio",
+    "huggingface",
+    "human-review",
+    "pii",
+    "spaces"
+  ]
 }
