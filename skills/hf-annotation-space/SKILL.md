@@ -36,7 +36,7 @@ templates in `templates/` are worked starting points, indexed by reviewer action
    - **Reviewer action.** Judge? Edit the output directly? A constrained edit (only some
      characters may change)? Pick a label? Mark spans? Choose between A and B?
    - **What's on screen.** Which fields, side by side or stacked, what gets highlighted, and
-     what's hidden (Daniel dropped the from → to table once editing became the action).
+     what's hidden (drop the from → to table once editing becomes the action).
    - **What a decision records.** Beyond the verdict: edited text, computed diffs, a
      **reason taxonomy** (preset checkboxes plus free text, when the corrections are meant to
      teach something), and any metadata.

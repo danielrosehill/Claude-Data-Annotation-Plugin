@@ -253,7 +253,7 @@ with gr.Blocks(title="Pseudonymizer pair review", css=CSS, js=JS, theme=gr.theme
                 inp = gr.HTML()
             with gr.Column():
                 gr.Markdown("**Pseudonymized — edit directly (e)**")
-                # The pseudonymized text IS the editor (Daniel, 2026-10-21: "just direct editing
+                # The pseudonymized text IS the editor (reviewer request, 2026-10-21: "just direct editing
                 # over the obfuscated text"); no separate swap table in the review tab.
                 fixbox = gr.Textbox(lines=12, max_lines=60, elem_id="fixbox", show_label=False, container=False)
         flagbox = gr.HTML()
