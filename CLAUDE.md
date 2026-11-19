@@ -1,6 +1,6 @@
 # Data-Annotation-Plugin
 
-Public Claude Code plugin `data-annotation` (v2.0.0): schema design, annotation UIs (Label Studio, Hugging Face Spaces),
+Public Claude Code plugin `data-annotation` (v2.1.0): schema design, annotation UIs (Label Studio, Hugging Face Spaces),
 annotation jobs (human, model, voice), pulling results back.
 
 - **Public and generic.** No personal names, hostnames, private domains, tokens or project names in anything committed.

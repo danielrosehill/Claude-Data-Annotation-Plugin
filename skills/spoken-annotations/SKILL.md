@@ -8,7 +8,8 @@ description: Annotate by voice instead of by hand - define the annotation struct
 Load settings first (`setup`, load step): `ASR_ENDPOINT_URL`, `ASR_MODEL`, `SPOKEN_ANNOTATION_MODEL`, token variable names
 and the user's language and note conventions in `preferences.md`.
 
-Annotation by hand gets fiddly, and speaking is faster than a form. Four steps:
+Annotation by hand gets fiddly, and speaking is faster than a form. To set up a whole voice-first workspace for a
+dataset (UI, anchors, a workspace-local conversion skill), start with `voice-annotation-workspace`. Four steps:
 
 1. **Define the structure first** (`design-schema`). Write down what an annotation consists of: the verdict, the reason
    categories, attributes, and any word- or span-level tag types with their fields. The model can only apply what the

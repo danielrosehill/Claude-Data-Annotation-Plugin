@@ -24,7 +24,7 @@ few real rows before asking anything.
 | Humans label; media, spans, audio waveforms, several annotators, hotkeys; a Label Studio instance exists in the overlay | `label-studio-new-project` (check `label-studio-templates` first) |
 | Humans review or fix model output; one reviewer; any browser; no server to run | `hf-annotation-space` |
 | Blind grading of outputs, A/B, rating | `hf-annotation-space` (blind grading section) |
-| Judging audio, or typing is the slow part | add `spoken-annotations` on top of either UI |
+| Judging audio, or typing is the slow part | `voice-annotation-workspace` to build the voice-first environment; `spoken-annotations` for the conversion runs |
 | An old one-off Space should become a Label Studio project | `label-studio-import-hf-space` |
 
 Say which route and why in two lines. A model pass followed by human review of the uncertain items is often the best

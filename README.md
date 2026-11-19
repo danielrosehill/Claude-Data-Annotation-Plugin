@@ -43,6 +43,7 @@ folder outside the plugin (see below).
 |---|---|
 | `annotate-in-session` | The agent annotates tens to low hundreds of records against a locked schema |
 | `scaffold-annotation-env` | Workspace for large-scale model annotation via the Gemini batch API |
+| `voice-annotation-workspace` | Set up a voice-first annotation workspace for any format: point, talk freely, transcribe, a workspace-local skill converts speech to the schema |
 | `spoken-annotations` | Annotate by voice: record per item, transcribe, a model applies it to the structure |
 
 ### Results and publish
@@ -93,6 +94,7 @@ Requirements: `uv`; `hf` CLI logged in for Hugging Face skills; `ffmpeg` for spo
 
 ## History
 
+- 2026-11-19 (2.1.0): new `voice-annotation-workspace` meta skill: voice-first annotation environments for any format (anchors per format, workspace-local conversion skill, pilot rounds), after the `feedback` plugin's framework.
 - 2026-11-19: renamed from Claude-Data-Annotation-Plugin; absorbed ai-eval `spoken-annotations` and
   `setup-annotation-space` (now the blind-grading section of `hf-annotation-space`), and the generic Label Studio
   operations from a private instance plugin (new project, interface, labels, UI tweaks, project groups, templates, Space
