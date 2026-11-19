@@ -5,6 +5,8 @@ description: Stage raw data from a GitHub repo, local path, or remote URL into a
 
 # Ingest Source
 
+Load settings first (`setup`, load step): read the overlay's `profile.env`, `preferences.md` and `ingest-source.md` if present; they win over defaults here.
+
 Unified entry point for getting raw data onto disk in a known location. Does not transform the data — just stages it and reports what was staged.
 
 ## Inputs
@@ -13,7 +15,7 @@ Unified entry point for getting raw data onto disk in a known location. Does not
 - Optional: a destination workspace. Default:
 
 ```bash
-DATA_ROOT="${CLAUDE_USER_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/claude-plugins}/data-annotation"
+DATA_ROOT="$(uv run ${CLAUDE_PLUGIN_ROOT}/scripts/overlay.py path)"   # the user overlay folder
 WORKSPACE="$DATA_ROOT/workspaces/<dataset-name>/raw"
 ```
 

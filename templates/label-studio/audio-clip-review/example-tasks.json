@@ -1,0 +1,4 @@
+[
+  {"data": {"clip_id": "c001", "line": "The quick brown fox jumps over the lazy dog.", "hint": "", "audio": "/data/local-files/?d=example/c001.mp3"},
+   "predictions": [{"model_version": "default-fine", "result": [{"from_name": "verdict", "to_name": "audio", "type": "choices", "value": {"choices": ["Fine"]}}]}]}
+]

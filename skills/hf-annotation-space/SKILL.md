@@ -1,9 +1,13 @@
 ---
 name: hf-annotation-space
-description: Design and stand up a private Hugging Face Space for humans to review, correct, label or browse a dataset. Each job gets a UI designed for its reviewer action (edit in place with reasons, judge accept/reject, constrained edit, …), starting from the closest template in a small library rather than one fixed app. Decisions are saved to the dataset repo with the reviewer's own HF sign-in, so the Space holds no secrets. Use when the user says "make an HF Space to review this data", "annotation Space", "I want to look at / edit the data on HF", "review UI for these pairs", or when synthetic or model-labelled data needs a human pass before training.
+description: Design and stand up a private Hugging Face Space for humans to review, correct, label, blind-grade or browse a dataset. Each job gets a UI designed for its reviewer action (edit in place with reasons, judge accept/reject, constrained edit, …), starting from the closest template in a small library rather than one fixed app. Decisions are saved to the dataset repo with the reviewer's own HF sign-in, so the Space holds no secrets. Use when the user says "make an HF Space to review this data", "annotation Space", "I want to look at / edit the data on HF", "review UI for these pairs", "I want to grade these outputs myself, blind", "set up an annotation space", or when synthetic or model-labelled data needs a human pass before training.
 ---
 
 # HF annotation Space
+
+Load settings first (`setup`, load step): `HF_ORG` is the owner of the new Space and dataset, `DEFAULT_VISIBILITY` the
+visibility (private unless the user says otherwise), `HF_TOKEN_ENV` the name of the token variable. The user's own
+templates in `<data folder>/templates/hf-space/<name>/` win over the built-ins here when the name matches.
 
 Builds a **private** Gradio Space over a **private** HF dataset so the user can review data
 from any browser. Every decision is committed back to the dataset, and
@@ -63,7 +67,7 @@ templates in `templates/` are worked starting points, indexed by reviewer action
    then `hf upload <owner>/<space> space . --repo-type space`. Poll
    `GET https://huggingface.co/api/spaces/<owner>/<space>/runtime` until it is `RUNNING`.
    Logs: `.../logs/build` and `.../logs/run` (SSE; `timeout 8 curl -sN`, grep `"data":`).
-7. **Verify the page** in a real browser (Claude in Chrome): it renders behind the private
+7. **Verify the page** in a real browser (automation browser or the user's own browser): it renders behind the private
    gate. **Don't click "Sign in with Hugging Face"**: that's an OAuth grant, so it's the
    user's click. The user's first real decisions, arriving through `pull_reviews.py`, are
    what proves sign-in works. Say so until they arrive.
@@ -75,6 +79,31 @@ templates in `templates/` are worked starting points, indexed by reviewer action
 9. **Iterate on feedback.** Reviewers find the UI's problems in the first ten items. Expect
    to redeploy, and when a job ends up with a materially new interaction, **add it to
    `templates/`** with a row in `templates/README.md`.
+
+## Blind grading (rating model outputs without knowing the model)
+
+Use this when the Space grades outputs of several models, prompts or systems: text, image or audio. It adds three things
+to the steps above; everything else (invariants, templates, traps) applies unchanged.
+
+1. **Blind the items before upload.** `uv run scripts/blind_items.py rate --responses responses.jsonl --out items.jsonl --key key.json`
+   (responses carry `model`, `prompt_id`, `prompt` and the output in `response`, `output`, `text` or `image`). For A/B use
+   `pairs` (randomises left and right). **`key.json` stays local**: never in the Space or the dataset, or the rating is not
+   blind. Model names, routes and file names that leak them stay off the form. Cost and output size may be shown only
+   if value for money is part of the question.
+2. **Design the form from the rubric, not a generic scale.** One control per criterion, kept short because people grade
+   badly on long forms. Add hard-failure tags from the objective's failure wording, an optional free-text note and an
+   optional process note (a criterion the form lacks, or something that couldn't be graded). Images: show JPEG previews, as
+   multi-MB PNGs make grading crawl. Audio: a player with speed control, and consider `spoken-annotations`.
+3. **Un-blind only after grading.** Pull reviews (`pull-annotations`), then
+   `uv run scripts/blind_items.py unblind --reviews reviews.jsonl --key key.json --out ratings.jsonl`. Report per-model
+   results, keeping human grades apart from any LLM judge; where both exist, list the disagreements (the most informative
+   rows). For preference pairs as training data, `preferences` writes `prompt`, `chosen`, `rejected` records.
+
+Create the private repos before any upload (uploading to a missing id creates it public):
+`hf repos create <owner>/<Name>-Ratings --repo-type dataset --private --exist-ok`, and the Space the same way with
+`--repo-type space --space-sdk gradio`. Grading is rarely worth a Space for fewer than about 20 outputs: reading them in
+a document is quicker. Files fetched with `snapshot_download` need `demo.launch(allowed_paths=[HF_HUB_CACHE])` or every
+image and audio item errors; verify that a handler really returns a file.
 
 ## Traps (all hit while building the first ones)
 

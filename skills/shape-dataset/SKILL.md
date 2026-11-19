@@ -5,6 +5,8 @@ description: Main entry point for turning raw data into a dataset. Examines a so
 
 # Prep Dataset (Orchestrator)
 
+Load settings first (`setup`, load step): read the overlay's `profile.env`, `preferences.md` and `shape-dataset.md` if present; they win over defaults here.
+
 This is the top-level workflow for taking raw data and getting it into shape for a dataset — typically one destined for annotation and publication on Hugging Face. It does **not** try to enumerate every possible operation as a separate skill. Instead, it inspects the data, understands the user's goal, and decides which preparatory steps to run, delegating each to a specialized subagent.
 
 ## Inputs to gather
@@ -12,10 +14,10 @@ This is the top-level workflow for taking raw data and getting it into shape for
 1. **Source** — a GitHub repo URL, a local path, or a remote URL. If unclear, invoke the `ingest-source` skill to stage the data first.
 2. **Target task** — what is the dataset *for*? (e.g. classification, instruction tuning, NER, RAG eval, preference pairs). This drives every downstream decision.
 3. **Sensitivity expectation** — does the data potentially contain PII? Is the published dataset intended to be public?
-4. **Working directory** — where prepared artifacts are written. Default: `$CLAUDE_USER_DATA/data-annotation/workspaces/<dataset-name>/` resolved as:
+4. **Working directory** — where prepared artifacts are written. Default: `<overlay folder>/workspaces/<dataset-name>/` (see `setup`), resolved as:
 
 ```bash
-DATA_ROOT="${CLAUDE_USER_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/claude-plugins}/data-annotation"
+DATA_ROOT="$(uv run ${CLAUDE_PLUGIN_ROOT}/scripts/overlay.py path)"   # the user overlay folder
 ```
 
 If the user wants the workspace under a path *they* own (e.g. `~/repos/...`), store only the pointer to that path in `$DATA_ROOT/config.json` and write artifacts there.
@@ -53,7 +55,7 @@ Persistent intermediate artifacts go in `<workspace>/stages/<NN>-<step>/`. The f
 ### 5. Hand off
 
 When prep is done, suggest the next skill based on scale and feedback needs:
-- **Small annotation (≤ ~200 records, schema may still need tuning)**: `annotate-with-claude` — Claude annotates each record interactively in-session, with the user supervising.
+- **Small annotation (≤ ~200 records, schema may still need tuning)**: `annotate-in-session` — Claude annotates each record interactively in-session, with the user supervising.
 - **Larger annotation (hundreds to thousands, schema locked)**: `scaffold-annotation-env` — sets up Gemini batch inference over the prepared data.
 - **For publication**: `hf-setup` — creates the HF dataset repo, copies data over, generates the card.
 - **End-to-end**: annotate (either skill), then `hf-setup` once labels are populated.

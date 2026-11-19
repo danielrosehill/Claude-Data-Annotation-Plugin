@@ -1,0 +1,109 @@
+{
+  "id": "audio-clip-review",
+  "title": "Audio clip review: Fine / Flag / Imperfect",
+  "summary": "Listen to short generated or recorded clips and give each a verdict; mark where faults are on the waveform. One click for the common case.",
+  "use_for": [
+    "TTS / voice-clone training clip QA",
+    "ASR or dictation audio spot checks",
+    "any per-clip keep/reject audio pass"
+  ],
+  "status": "in use",
+  "derived_from": {
+    "origin": "a tested audio review project on Label Studio 1.23",
+    "captured": "2026-11-15",
+    "generalised": "2026-11-19"
+  },
+  "data_fields": {
+    "audio": {
+      "required": true,
+      "example": "/data/local-files/?d=<folder>/<clip>.mp3",
+      "note": "URL or local-files path"
+    },
+    "line": {
+      "required": true,
+      "note": "the text the clip should say, shown as the header"
+    },
+    "hint": {
+      "required": false,
+      "note": "where to listen; put '' if none"
+    },
+    "clip_id": {
+      "required": true,
+      "note": "your stable id, used by pull scripts"
+    }
+  },
+  "controls": {
+    "verdict": {
+      "type": "Choices",
+      "values": [
+        "Fine",
+        "Flag",
+        "Imperfect"
+      ],
+      "hotkeys": [
+        "q",
+        "w",
+        "e"
+      ],
+      "required": true,
+      "meaning": {
+        "Fine": "clean",
+        "Flag": "reject",
+        "Imperfect": "keep, rework in a round 2"
+      }
+    },
+    "where": {
+      "type": "Labels on audio",
+      "values": [
+        "Skip / stutter forward",
+        "Creak / buzz",
+        "Wrong / missing word",
+        "Noise / artefact",
+        "Comment"
+      ],
+      "hotkeys": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5"
+      ]
+    },
+    "region_note": {
+      "type": "TextArea per region"
+    },
+    "note": {
+      "type": "TextArea, clip level, optional"
+    }
+  },
+  "project_settings": {
+    "show_instruction": true,
+    "maximum_annotations": 1,
+    "sampling": "Sequential sampling"
+  },
+  "one_click": {
+    "how": "import each task with a Fine prediction",
+    "prediction": {
+      "model_version": "default-fine",
+      "result": [
+        {
+          "from_name": "verdict",
+          "to_name": "audio",
+          "type": "choices",
+          "value": {
+            "choices": [
+              "Fine"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "look": "<Style> block in config.xml: coloured pill buttons for the verdict, green Submit. Targets Label Studio 1.23 class names (lsf-choice*, ant-checkbox*).",
+  "readback": "A clip is flagged if verdict is Flag, or it has regions with Fine; Imperfect is kept and listed for a second round. Map your own rule in the pull step.",
+  "variants": [
+    "drop the 'where' Labels for a pure verdict pass",
+    "rename fault labels to the domain (keep hotkeys 1-5)",
+    "multiple annotators: maximum_annotations 2+ and no pre-fill"
+  ]
+}

@@ -1,63 +1,104 @@
-# Claude Data Annotation Plugin
+# Data Annotation Plugin
 
-End-to-end toolkit for turning raw data into an annotated dataset and publishing it to Hugging Face. Covers the full lifecycle: ingest, profile, clean (PII, columns, format), design an annotation schema, annotate (interactively with Claude or via Gemini batch inference), review, and publish.
+The general-purpose plugin for data labelling and annotation: design the annotation schema, set up the annotation UI, set
+up an individual annotation job, run the annotation (human, model or voice), and pull the results back. Works with Label
+Studio (any instance you can reach by URL and token), private Hugging Face Spaces, in-session model annotation and batch
+model annotation.
 
-The plugin is built around a small set of orchestrator skills delegating to specialized subagents — instead of one micro-skill per micro-operation, the orchestrator looks at the data, talks to the user, and figures out which steps are needed.
+Plugin name: `data-annotation` (v2.0.0). Public and generic: everything particular to you lives in a private overlay
+folder outside the plugin (see below).
 
 ## Skills
 
-- **`shape-dataset`** — top-level prep workflow. Ingests a source, profiles it, proposes a prep plan (PII, columns, format, splits, schema), executes approved steps. Hands off to annotation or publication.
-- **`annotate-with-claude`** — Claude annotates a small dataset interactively in-session against a locked schema. For runs where Label Studio or batch inference would be overkill (typically tens to low hundreds of records).
-- **`scaffold-annotation-env`** — generates a workspace for large-scale annotation via the Gemini batch inference API, with Python boilerplate (run, poll, validate).
-- **`hf-setup`** — creates a Hugging Face dataset repo (asks public/private), copies the prepared data over, generates the dataset card, pushes via `huggingface-cli`.
-- **`hf-annotation-space`** — designs and stands up a private Hugging Face Space for human review, correction or labelling of a dataset. The UI is designed per job around the reviewer action (edit in place with reasons, judge accept/reject, constrained edit, …), starting from the closest entry in a small template library (`skills/hf-annotation-space/templates/`). Fixed invariants: private, saves made with the reviewer's own HF sign-in (no secrets), one decision file per item, colour-coded verdicts, keyboard shortcuts.
-- **`ingest-source`** — stages raw data from GitHub, a local path, or a remote URL into a known working directory.
-- **`init-dataset-repo`** — initializes a local git repo with the conventional HF dataset layout, LFS rules, license, and card stub.
+### Start here
+| Skill | Use |
+|---|---|
+| `new-annotation-job` | Router: choose who annotates and which backend, then hand off |
+| `setup` | Write your overlay: backend URLs, Hugging Face org, default hotkeys and audio settings, ASR endpoint |
 
-## Subagents
+### Schema and prep
+| Skill | Use |
+|---|---|
+| `design-schema` | Design the annotation schema and guidelines, render it for the chosen backend |
+| `shape-dataset` | Raw data to a prepared dataset: profile, PII, columns, format, splits |
+| `ingest-source` | Stage data from GitHub, a path or a URL into a working directory |
+| `init-dataset-repo` | Local dataset repo with the Hugging Face layout, LFS rules, licence, card stub |
 
-The orchestrator skills delegate to these — they are not invoked directly by the user.
+### UIs and backends
+| Skill | Use |
+|---|---|
+| `hf-annotation-space` | Private Hugging Face Space for review, correction, labelling and blind grading, designed per job from a template library |
+| `label-studio-new-project` | Create a Label Studio project from a brief and data: config, instructions, settings, pilot |
+| `label-studio-edit-interface` | Make an annotation screen faster: layout, hotkeys, audio, pre-fill, views |
+| `label-studio-edit-labels` | Add, rename, merge or remove labels without breaking annotations |
+| `label-studio-ui-tweaks` | Fonts, colours, waveform and player look, per project or instance-wide |
+| `label-studio-project-groups` | A batch of identical projects (per voice, speaker, split), kept in sync |
+| `label-studio-templates` | Use or capture reusable project templates (built-ins plus your own) |
+| `label-studio-import-hf-space` | Rebuild a one-off Space as a Label Studio project with the same write-back |
+| `label-studio-extensions` | Is there a plugin, attribute or backend for X on Community edition |
+| `label-studio-users` | Add annotators, reset passwords, invite links |
 
-- **`data-profiler`** — schema inference, stats, encoding, samples; flags concerns.
-- **`pii-scanner`** — detects PII (direct and quasi), proposes redaction strategy per column; can apply on approval.
-- **`column-curator`** — recommends keep/drop/rename/recast/derive per column for the target task.
-- **`schema-designer`** — proposes annotation schema and guidelines from data + task; iterates with the user before locking.
-- **`format-normalizer`** — executes format conversions, encoding fixes, JSON flattening, reshape-for-annotation, and splits.
-- **`review-annotations`** — audits finished annotations: schema validation, label distribution, sampled spot-checks, agreement analysis.
+### Jobs: annotate
+| Skill | Use |
+|---|---|
+| `annotate-in-session` | The agent annotates tens to low hundreds of records against a locked schema |
+| `scaffold-annotation-env` | Workspace for large-scale model annotation via the Gemini batch API |
+| `spoken-annotations` | Annotate by voice: record per item, transcribe, a model applies it to the structure |
 
-## Typical workflow
+### Results and publish
+| Skill | Use |
+|---|---|
+| `pull-annotations` | Bring annotations back from any backend, join to items, audit |
+| `label-studio-push-dataset` | Push a Label Studio project's labels into its Hugging Face dataset and verify |
+| `hf-setup` | Create and push a Hugging Face dataset repo with a card |
 
-```
-ingest-source
-   ↓
-shape-dataset  ──→  data-profiler, pii-scanner, column-curator, format-normalizer, schema-designer
-   ↓
-annotate-with-claude   (small)        OR        scaffold-annotation-env   (large)
-   ↓                                                ↓
-review-annotations / hf-annotation-space         review-annotations / hf-annotation-space
-   ↓                                                ↓
-hf-setup                                         hf-setup
-```
+### Agents
+`schema-designer`, `data-profiler`, `pii-scanner`, `column-curator`, `format-normalizer`, `review-annotations`: delegated to by the skills above.
 
-## Installation
+## Scripts and references
+
+- `scripts/labelstudio.py`: stdlib CLI for the Label Studio API (projects, overview, config get/validate/set with backups,
+  create, import, export, label usage, local-files storage, group diff/set, templates). Dry run unless `--confirm`.
+- `scripts/overlay.py`: resolves and reads the overlay.
+- `scripts/apply_voice_notes.py`: spoken notes to structured annotations.
+- `references/label-studio/`: API map, config patterns, extension points, screen review, Hugging Face round trip.
+- `templates/`: built-in Label Studio templates; Space templates in `skills/hf-annotation-space/templates/`.
+
+## Overlay (your private settings)
+
+Data folder, first match wins: `$DATA_ANNOTATION_DIR`, `$CLAUDE_USER_DATA/data-annotation`,
+`~/.claude-user-data/data-annotation` (if `~/.claude-user-data` exists), `${XDG_DATA_HOME:-~/.local/share}/claude-plugins/data-annotation`.
+
+| File | Holds |
+|---|---|
+| `profile.env` | `LABEL_STUDIO_URL`, `LABEL_STUDIO_API_URL`, `LABEL_STUDIO_TOKEN_ENV`, `HF_ORG`, `DEFAULT_VISIBILITY`, `ASR_ENDPOINT_URL`, `SPOKEN_ANNOTATION_MODEL`, ... |
+| `preferences.md` | default hotkeys, audio player settings, annotators, spoken-note conventions |
+| `templates/label-studio/<id>/`, `templates/hf-space/<name>/` | your templates; same name as a built-in wins |
+| `schemas/<name>.json` | reusable annotation schemas |
+| `<skill-name>.md` | private notes for one skill; wins over defaults |
+| `label-studio-projects.md` | your register of projects |
+
+**Secrets are never in the overlay.** It holds the names of environment variables (`LABEL_STUDIO_TOKEN_ENV=MY_LS_TOKEN`);
+inject their values with whatever secrets tool you use. Run `setup` to create it.
+
+## Install
 
 ```bash
 claude plugins marketplace update danielrosehill
 claude plugins install data-annotation@danielrosehill
 ```
 
-After installing, restart Claude Code.
+Requirements: `uv`; `hf` CLI logged in for Hugging Face skills; `ffmpeg` for spoken annotations; a Gemini key for
+`scaffold-annotation-env`.
 
-## Requirements
+## History
 
-- `huggingface-cli` (logged in) for `hf-setup`.
-- `GEMINI_API_KEY` in the annotation workspace `.env` for `scaffold-annotation-env`.
-- Python with `pandas`, `pyarrow`, `presidio-analyzer`, `jsonschema` (skill scripts install via `uv` on first run).
-
-## Data storage
-
-- Plugin-managed working state: `${CLAUDE_USER_DATA:-${XDG_DATA_HOME:-$HOME/.local/share}/claude-plugins}/data-annotation/`.
-- User-owned dataset repos: a path the user picks during onboarding (typically under `~/repos/` or `~/Documents/`); only a pointer is stored under `$CLAUDE_USER_DATA`.
+- 2026-11-19: renamed from Claude-Data-Annotation-Plugin; absorbed ai-eval `spoken-annotations` and
+  `setup-annotation-space` (now the blind-grading section of `hf-annotation-space`), and the generic Label Studio
+  operations from a private instance plugin (new project, interface, labels, UI tweaks, project groups, templates, Space
+  import, extensions, users, push to dataset). Added the overlay, `setup`, `design-schema`, `new-annotation-job`,
+  `pull-annotations`. `annotate-with-claude` renamed `annotate-in-session`.
+- 2026-10: `hf-annotation-space` redesigned around per-job UIs and a template library.
 
 ## License
 

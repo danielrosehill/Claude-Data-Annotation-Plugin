@@ -5,6 +5,8 @@ description: Set up a Hugging Face dataset repository — create the remote repo
 
 # Hugging Face Dataset Setup
 
+Load settings first (`setup`, load step): read the overlay's `profile.env`, `preferences.md` and `hf-setup.md` if present; they win over defaults here.
+
 End-to-end setup of an HF dataset repository from a prepared local dataset. Encompasses creation, data copy, dataset card, and push.
 
 ## Prerequisites
@@ -28,7 +30,7 @@ End-to-end setup of an HF dataset repository from a prepared local dataset. Enco
 huggingface-cli repo create <name> --type dataset [--private] [--organization <org>]
 ```
 
-Use `--private` if the user chose private. Capture the resulting repo URL (`https://huggingface.co/datasets/<owner>/<name>`).
+Owner defaults to `HF_ORG` and visibility to `DEFAULT_VISIBILITY` from the overlay (still confirm public publication with the user). Newer CLIs spell this `hf repos create <owner>/<name> --repo-type dataset [--private] --exist-ok`. Use `--private` if the user chose private. Capture the resulting repo URL (`https://huggingface.co/datasets/<owner>/<name>`).
 
 ### 2. Initialize a local dataset repo
 

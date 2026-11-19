@@ -5,6 +5,8 @@ description: Create a self-contained annotation workspace for a prepared dataset
 
 # Scaffold Annotation Environment
 
+Load settings first (`setup`, load step): read the overlay's `profile.env`, `preferences.md` and `scaffold-annotation-env.md` if present; they win over defaults here.
+
 Produces a workspace where annotation runs can be executed, reviewed, and iterated. The annotation engine is **Gemini batch inference** (cost/throughput driven choice), with Python boilerplate using the official `google-genai` SDK.
 
 ## Prerequisites

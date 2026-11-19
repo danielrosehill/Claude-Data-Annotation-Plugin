@@ -1,9 +1,11 @@
 ---
-name: annotate-with-claude
-description: Annotate a small dataset directly inside the Claude Code session — Claude reads each record, applies the locked schema, and writes structured annotations to disk. For datasets where standing up Label Studio or a Gemini batch job would be overkill (typically tens to low hundreds of records). Use when the user says "annotate this dataset", "label these records with Claude", "do the annotations yourself", or "small-scale annotation".
+name: annotate-in-session
+description: Annotate a small dataset directly inside the agent session — the agent reads each record, applies the locked schema, and writes structured annotations to disk. For datasets where standing up Label Studio or a Gemini batch job would be overkill (typically tens to low hundreds of records). Use when the user says "annotate this dataset", "label these records with Claude", "do the annotations yourself", or "small-scale annotation".
 ---
 
-# Annotate With Claude (Interactive, In-Session)
+# Annotate in session (interactive, the agent annotates)
+
+Load settings first (`setup`, load step): read the overlay's `profile.env`, `preferences.md` and `annotate-in-session.md` if present; they win over defaults here.
 
 For small annotation jobs where the right tool is just Claude, a schema, and a JSONL file. No batch infra, no UI, no API key — Claude reads each record in turn, applies the schema, writes the output, and moves on. The user supervises (skim, spot-check, course-correct mid-run).
 
@@ -11,7 +13,7 @@ This skill complements `scaffold-annotation-env` (which sets up Gemini batch inf
 
 | Situation | Use |
 |---|---|
-| ≤ ~200 records, schema may still need refinement, want tight feedback | `annotate-with-claude` (this skill) |
+| ≤ ~200 records, schema may still need refinement, want tight feedback | `annotate-in-session` (this skill) |
 | Hundreds to thousands of records, schema is locked | `scaffold-annotation-env` |
 | Mixed: a small calibration set first, then scale | This skill for the calibration set, then scaffold |
 
@@ -20,7 +22,7 @@ This skill complements `scaffold-annotation-env` (which sets up Gemini batch inf
 1. **Input file** — a JSONL where each line is one record. If the source is CSV/Parquet, ask the orchestrator (`shape-dataset`) to reshape first. Each record must have a stable `id`.
 2. **Schema** — `schema.json` produced by the `schema-designer` subagent. If absent, run `schema-designer` first; do not invent a schema mid-run.
 3. **Annotation guidelines** — short markdown describing edge cases, decision rules, and "when in doubt" defaults. Usually a sibling of `schema.json`.
-4. **Output file** — JSONL of annotations. Default: `<workspace>/annotation/claude-annotations.jsonl`.
+4. **Output file** — JSONL of annotations. Default: `<workspace>/annotation/model-annotations.jsonl`.
 5. **Confidence/abstain policy** — should Claude flag uncertain cases for human review rather than guess? Default yes.
 
 ## Workflow

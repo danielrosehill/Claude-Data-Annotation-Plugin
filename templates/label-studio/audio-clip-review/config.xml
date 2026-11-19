@@ -1,0 +1,39 @@
+<View>
+  <Style>
+    .lsf-choice_layout_inline { margin-right: 10px; }
+    .lsf-choice__item .lsf-choice__checkbox { font-size: 17px; font-weight: 600; padding: 10px 22px 10px 16px; border-radius: 999px; border: 2px solid #ccc; background: #fff; transition: all .12s; cursor: pointer; }
+    .lsf-choice__item .lsf-choice__checkbox .ant-checkbox { display: none; }
+    .lsf-choice__checkbox:hover { transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,.15); }
+    .lsf-choice_layout_inline:nth-child(1) .lsf-choice__checkbox { border-color: #27ae60; color: #1e8449; }
+    .lsf-choice_layout_inline:nth-child(2) .lsf-choice__checkbox { border-color: #e74c3c; color: #c0392b; }
+    .lsf-choice_layout_inline:nth-child(3) .lsf-choice__checkbox { border-color: #f39c12; color: #b9770e; }
+    .lsf-choice_layout_inline:nth-child(1) .lsf-choice__checkbox::before { content: "✅ "; }
+    .lsf-choice_layout_inline:nth-child(2) .lsf-choice__checkbox::before { content: "🚩 "; }
+    .lsf-choice_layout_inline:nth-child(3) .lsf-choice__checkbox::before { content: "🛠️ "; }
+    .lsf-choice_layout_inline:nth-child(1) .ant-checkbox-wrapper-checked { background: #27ae60; color: #fff !important; }
+    .lsf-choice_layout_inline:nth-child(2) .ant-checkbox-wrapper-checked { background: #e74c3c; color: #fff !important; }
+    .lsf-choice_layout_inline:nth-child(3) .ant-checkbox-wrapper-checked { background: #f39c12; color: #fff !important; }
+    .lsf-labels_inline .lsf-label { font-size: 15px; padding: 6px 12px; }
+    button[aria-label="Submit current annotation"] { background: #27ae60 !important; border-color: #27ae60 !important; font-size: 17px; font-weight: 700; }
+  </Style>
+  <Header value="$line" size="4"/>
+  <Text name="hint" value="$hint"/>
+  <Audio name="audio" value="$audio" hotkey="space" zoom="true" speed="true"/>
+  <Labels name="where" toName="audio" choice="single">
+    <Label value="Skip / stutter forward" background="#c0392b" hotkey="1"/>
+    <Label value="Creak / buzz" background="#8e44ad" hotkey="2"/>
+    <Label value="Wrong / missing word" background="#d35400" hotkey="3"/>
+    <Label value="Noise / artefact" background="#7f8c8d" hotkey="4"/>
+    <Label value="Comment" background="#2980b9" hotkey="5"/>
+  </Labels>
+  <View visibleWhen="region-selected">
+    <Header value="Comment on the selected region" size="6"/>
+    <TextArea name="region_note" toName="audio" perRegion="true" placeholder="What happens here?" rows="2" editable="true"/>
+  </View>
+  <Choices name="verdict" toName="audio" choice="single" required="true" showInline="true">
+    <Choice value="Fine" hotkey="q"/>
+    <Choice value="Flag" hotkey="w"/>
+    <Choice value="Imperfect" hotkey="e" hint="Not bad enough to reject, but could use work in a round 2"/>
+  </Choices>
+  <TextArea name="note" toName="audio" placeholder="Note (optional)" rows="2" maxSubmissions="1" editable="true"/>
+</View>

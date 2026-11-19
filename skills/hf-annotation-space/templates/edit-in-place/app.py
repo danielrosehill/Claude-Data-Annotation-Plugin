@@ -1,4 +1,4 @@
-"""Review Space for Proximate-Pseudonymizer pairs (private).
+"""Review Space for text pairs (private).
 
 TEMPLATE NOTE (hf-annotation-space, edit-in-place): this is the verbatim app of a real job,
 not a generic one. Adapt it, don't run it as-is: DATASET, REASONS (the correction taxonomy
@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 import gradio as gr
 from huggingface_hub import HfApi, hf_hub_download
 
-DATASET = os.environ.get("DATASET_REPO", "danielrosehill/Proximate-Pseudonymizer-Pairs")
+DATASET = os.environ.get("DATASET_REPO", "your-org/your-dataset")  # set DATASET_REPO in the Space variables
 PAIRS_PATH = "pairs.jsonl"
 CACHE: dict = {}
 
@@ -236,8 +236,8 @@ def stats(oauth_token: gr.OAuthToken | None):
     return "\n\n".join(lines)
 
 
-with gr.Blocks(title="Pseudonymizer pair review", css=CSS, js=JS, theme=gr.themes.Soft()) as demo:
-    gr.Markdown("# Proximate-Pseudonymizer · pair review\nRed = the identifying spans in the original. Edit the "
+with gr.Blocks(title="Pair review", css=CSS, js=JS, theme=gr.themes.Soft()) as demo:
+    gr.Markdown("# Pair review\nRed = the identifying spans in the original. Edit the "
                 "pseudonymized text directly where a substitute isn't *proximate* (wrong gender or country, very "
                 "different scale), a detail was missed, or an ordinary word was swapped, tick why, then **Accept** "
                 "(saves your edit). Keys: **a** accept · **r** reject · **e** edit · **n** skip.")

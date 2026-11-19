@@ -1,5 +1,5 @@
 ---
-title: Proximate Pseudonymizer Review
+title: Pair Review
 emoji: 🕵️
 colorFrom: green
 colorTo: red
@@ -12,14 +12,13 @@ hf_oauth: true
 hf_oauth_scopes:
   - read-repos
   - write-repos
-short_description: Review synthetic pseudonymization pairs
+short_description: Review and correct dataset items
 ---
 
-# Proximate-Pseudonymizer · pair review (private)
+# Pair review (private)
 
 Reviews pairs from the private dataset
-[`danielrosehill/Proximate-Pseudonymizer-Pairs`](https://huggingface.co/datasets/danielrosehill/Proximate-Pseudonymizer-Pairs)
+[`your-org/your-dataset`](https://huggingface.co/datasets/your-org/your-dataset)
 (`pairs.jsonl`). Sign in with Hugging Face; the pairs are read and each decision is written as
 `reviews/<id>.json` with your own OAuth token, so no token is stored in the Space.
 
-Source: [github.com/danielrosehill/Proximate-Pseudonymizer](https://github.com/danielrosehill/Proximate-Pseudonymizer) (`space/`).

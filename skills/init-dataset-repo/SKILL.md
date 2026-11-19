@@ -5,6 +5,8 @@ description: Initialize a local git repository for a dataset, with the conventio
 
 # Init Dataset Repo
 
+Load settings first (`setup`, load step): read the overlay's `profile.env`, `preferences.md` and `init-dataset-repo.md` if present; they win over defaults here.
+
 Creates a clean local git repository structured for Hugging Face hosting. Does not push anywhere — `hf-setup` handles remote creation and push.
 
 ## Inputs
